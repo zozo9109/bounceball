@@ -22,12 +22,15 @@ int arr[32][18];
 int starPoints[6][2];
 
 int star_count;
+
 int x, y;
 int ex, ey;
 int x_speed;
 int y_speed;
+
 int stage = 0;
 bool eatStar[6];
+
 bool isPlay = false;
 bool isStarted = false;
 bool issound = true;
@@ -36,6 +39,8 @@ bool isAllStar;
 STATE player_state = STATE::YELLOW;
 
 SoundID sound1;
+
+
 
 void end()
 {
@@ -64,35 +69,6 @@ void end()
     }
 
 }
-void tick() 
-{
-    x += x_speed;
-    y += y_speed;
-
-    locateObject(player, scene3, x - 10, y - 10);
-
-    for (int i = 0; i < 6; i++) {
-        if (eatStar[i]) continue;
-        if (starPoints[i][0] <= x && x <= starPoints[i][0] + 30 && starPoints[i][1] <= y && y <= starPoints[i][1] + 30) {
-            eatStar[i] = true;
-            hideObject(stars[i]);
-        }
-    }
-
-    if (ex <= x && x <= ex + 40 && ey <= y && y <= ey + 40) end();
-
-    if (y_speed > -10) y_speed -= G;
-    
-    if (arr[x / 40][(720 - y + 10) / 40] == 1) y_speed = 9;
-
-    if (isStarted) 
-    {
-        setTimer(timer, 1.f / TPS);
-        startTimer(timer);
-    }
-
-
-}
 
 void start() 
 {
@@ -111,6 +87,11 @@ void start()
 
 void map_load(int stage) 
 {
+    player_state = STATE::YELLOW;
+    setObjectImage(player, "Images/yellow.png");
+    x_speed = 0;
+    y_speed = 0;
+    
     if (stage == 1) 
     {
         for (int x = 0; x < 32; x++) 
@@ -235,6 +216,83 @@ void map_load(int stage)
     }
     showObject(clear);
     locateObject(clear, scene3, ex, ey);
+}
+
+void tick() 
+{
+    locateObject(player, scene3, x - 10, y - 10);
+
+    for (int i = 0; i < 6; i++) {
+        if (eatStar[i]) continue;
+        if (starPoints[i][0] <= x && x <= starPoints[i][0] + 30 && starPoints[i][1] <= y && y <= starPoints[i][1] + 30) {
+            eatStar[i] = true;
+            hideObject(stars[i]);
+        }
+    }
+
+    if (ex <= x && x <= ex + 40 && ey <= y && y <= ey + 40) end();
+    
+    if (player_state == STATE::YELLOW || player_state == STATE::BLUE) {
+        x += x_speed;
+        y += y_speed;
+        
+        if (y_speed > -10) y_speed -= G;
+        
+        if (y > 10 && arr[x / 40][(720 - y + 10) / 40] != 0) {
+            y_speed = player_state == STATE::YELLOW ? 9 : 13;
+        }
+        else if (y < 710 && y_speed > 0 && arr[x / 40][(720 - y - 10) / 40] != 0) {
+            y_speed *= -1;
+        }
+        else if (x_speed > 0 && arr[(x + 10) / 40][(720 - y) / 40] != 0) {
+            x -= x_speed;
+        }
+        else if (x_speed < 0 && arr[(x - 10) / 40][(720 - y) / 40] != 0) {
+            x -= x_speed;
+        }
+    }
+    else {
+        x += player_state == STATE::RED ? 10 : -10;
+        
+        if (y > 10 && arr[x / 40][(720 - y + 10) / 40] != 0) {
+            y_speed = 9;
+            player_state = STATE::YELLOW;
+            setObjectImage(player, "Images/yellow.png");
+        }
+        else if (y < 710 && y_speed > 0 && arr[x / 40][(720 - y - 10) / 40] != 0) {
+            y_speed = -1;
+            player_state = STATE::YELLOW;
+            setObjectImage(player, "Images/yellow.png");
+        }
+        else if (arr[(x + 10) / 40][(720 - y) / 40] != 0) {
+            player_state = STATE::YELLOW;
+            setObjectImage(player, "Images/yellow.png");
+        }
+        else if (arr[(x - 10) / 40][(720 - y) / 40] != 0) {
+            player_state = STATE::YELLOW;
+            setObjectImage(player, "Images/yellow.png");
+        }
+    }
+    
+    if (y <= 0) map_load(stage);
+    else if (y > 22 && arr[x / 40][(720 - y + 22) / 40] == 2) {
+        map_load(stage);
+    }
+    else if (y < 698 && arr[x / 40][(720 - y - 22) / 40] == 3) {
+        map_load(stage);
+    }
+    else if (arr[(x + 22) / 40][(720 - y) / 40] == 4) {
+        map_load(stage);
+    }
+    else if (arr[(x - 22) / 40][(720 - y) / 40] == 5) {
+        map_load(stage);
+    }
+    
+    if (isStarted) 
+    {
+        setTimer(timer, 1.f / TPS);
+        startTimer(timer);
+    }
 }
 
 void mouseCallback(ObjectID object, int x, int y, MouseAction action) 
@@ -416,11 +474,12 @@ int main()
     ex2 = createObject("Images/excellent.png", scene2,450,100, false);
     ex3 = createObject("Images/excellent.png", scene2, 850,100, false);
     clear = createObject("Images/clear.png");
+    
+    
     for (int i = 0; i< 6; i++)
     {
          stars[i] = createObject("Images/star.png");
     }
-
 
     for (int x = 0; x < 32; x++) 
     {
