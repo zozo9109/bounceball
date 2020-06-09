@@ -259,8 +259,7 @@ void map_load(int stage)
     locateObject(clear, scene3, ex, ey);
 }
 
-void tick()
-{
+void tick() {
     locateObject(player, scene3, x - 10, y - 10);
 
     for (int i = 0; i < 6; i++) {
@@ -274,45 +273,48 @@ void tick()
     if (ex <= x && x <= ex + 40 && ey <= y && y <= ey + 40) end();
 
     if (player_state == STATE::YELLOW || player_state == STATE::BLUE) {
-        x += x_speed;
         y += y_speed;
 
         if (y_speed > -10) y_speed -= G;
 
         if (y > 10 && arr[x / 40][(720 - y + 10) / 40] != 0) {
+            y = 720 - (720 - y + 10) / 40 * 40 + 10;
             y_speed = player_state == STATE::YELLOW ? 9 : 13;
         }
         else if (y < 710 && y_speed > 0 && arr[x / 40][(720 - y - 10) / 40] != 0) {
+            y = 720 - (720 - y - 10) / 40 * 40 - 50;
             y_speed *= -1;
         }
-        else if (x_speed > 0 && arr[(x + 10) / 40][(720 - y) / 40] != 0) {
-            x -= x_speed;
+        else if (arr[(x + 10) / 40][(720 - y) / 40] != 0) {
+            x = (x + 10) / 40 * 40 - 10;
         }
-        else if (x_speed < 0 && arr[(x - 10) / 40][(720 - y) / 40] != 0) {
-            x -= x_speed;
+        else if (arr[(x - 10) / 40][(720 - y) / 40] != 0) {
+            x = (x - 10) / 40 * 40 + 50;
         }
+        else x += x_speed;
     }
     else {
-        x += player_state == STATE::RED ? 10 : -10;
-
         if (y > 10 && arr[x / 40][(720 - y + 10) / 40] != 0) {
             y_speed = 9;
             player_state = STATE::YELLOW;
             setObjectImage(player, "Images/yellow.png");
         }
-        else if (y < 710 && y_speed > 0 && arr[x / 40][(720 - y - 10) / 40] != 0) {
+        else if (y < 710 && arr[x / 40][(720 - y - 10) / 40] != 0) {
+            player_state = STATE::YELLOW;
             y_speed = -1;
-            player_state = STATE::YELLOW;
             setObjectImage(player, "Images/yellow.png");
         }
-        else if (arr[(x + 10) / 40][(720 - y) / 40] != 0) {
+        else if (player_state == STATE::RED && arr[(x + 10) / 40][(720 - y) / 40] != 0) {
             player_state = STATE::YELLOW;
+            x = (x + 10) / 40 * 40 - 10;
             setObjectImage(player, "Images/yellow.png");
         }
-        else if (arr[(x - 10) / 40][(720 - y) / 40] != 0) {
+        else if (player_state == STATE::PURPLE && arr[(x - 10) / 40][(720 - y) / 40] != 0) {
             player_state = STATE::YELLOW;
+            x = (x - 10) / 40 * 40 + 50;
             setObjectImage(player, "Images/yellow.png");
         }
+        else x += player_state == STATE::RED ? 10 : -10;
     }
 
     if (y <= 0) map_load(stage);
@@ -329,8 +331,7 @@ void tick()
         map_load(stage);
     }
 
-    if (isStarted)
-    {
+    if (isStarted) {
         setTimer(timer, 1.f / TPS);
         startTimer(timer);
     }
@@ -489,18 +490,19 @@ int main()
     timer = createTimer(1.f / TPS);
 
     scene1 = createScene("main", "Images/home_background.png");
-
     scene2 = createScene("main", "Images/background.png");
-
     scene3 = createScene("game", "Images/background.png");
     scene4 = createScene("game", "Images/background.png");
+    
     sound1 = createSound("Images/sound.mp3");
 
     play = createObject("Images/play.png", scene1, 600, 300, true);
     exit = createObject("Images/exit.png", scene1, 850, 300, true);
+    
     back1 = createObject("Images/back.png", scene2, 30, 650, true);
     back2 = createObject("Images/back.png", scene4, 30, 650, true);
     back3 = createObject("Images/back.png", scene3, 30, 650, true);
+    
     home = createObject("Images/home.png", scene3, 600, 300, false);
     how_to_play = createObject("Images/how_to_play.png", scene1, 1100, 70, true);
     next = createObject("Images/next.png", scene3, 600, 300, false);
