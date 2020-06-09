@@ -6,10 +6,9 @@ int map1_ys = 327;
 int map1_xe = 250;
 int map1_ye = 210;
 
-int stars1 = 4;
-int starsPoint1[4][2] =
+int stars1 = 3;
+int starsPoint1[3][2] =
 {
-	{250,210},
 	{330,327},
 	{530,400},
 	{890,440}
