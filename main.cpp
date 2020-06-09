@@ -2,16 +2,13 @@
 #include <stdio.h>
 #include "game.h"
 
-
 const int G = 1;
-const int TPS = 20;
-
+const int TPS = 50;
 
 enum class STATE { YELLOW, BLUE, RED, PURPLE };
 
-
 SceneID scene1, scene2, scene3, scene4;
-ObjectID play, exit, back1, back2, back3, blank, home, how_to_play, lock, next, sound, soundx, step1, step2, step3, step2x, step3x, ex1, ex2, ex3,clear;
+ObjectID play, exit, back1, back2, back3, blank, home, how_to_play, lock, next, sound, soundx, step1, step2, step3, ex1, ex2, ex3, clear;
 ObjectID player;
 ObjectID stars[6];
 ObjectID blocks[32][18];
@@ -35,11 +32,12 @@ bool isPlay = false;
 bool isStarted = false;
 bool issound = true;
 bool isclear;
-bool isAllStar;
+bool clear1 = false;
+bool clear2 = false;
+
 STATE player_state = STATE::YELLOW;
 
 SoundID sound1;
-
 
 
 void end()
@@ -54,25 +52,69 @@ void end()
         enterScene(scene2);
         isStarted = false;
         stage = 0;
+        clear1 = true;
+        bool isAllStar = true;
+        setObjectImage(step2, "Images/step2.png");
+        for (int i = 0; i < star_count; i++)
+        {
+
+            if (eatStar[i] == false)
+            {
+                isAllStar = false;
+                break;
+            }
+
+
+        }
+        if (isAllStar)
+            showObject(ex1);
     }
     else if (stage == 2)
     {
         enterScene(scene2);
         isStarted = false;
         stage = 0;
+        clear2 = true;
+        bool isAllStar = true;
+        setObjectImage(step3, "Images/step3.png");
+        for (int i = 0; i < star_count; i++)
+        {
+
+            if (eatStar[i] == false)
+            {
+                isAllStar = false;
+                break;
+            }
+        }
+        if (isAllStar)
+            showObject(ex2);
     }
     else if (stage == 3)
     {
         enterScene(scene2);
         isStarted = false;
         stage = 0;
+        bool isAllStar = true;
+        for (int i = 0; i < star_count; i++)
+        {
+
+            if (eatStar[i] == false)
+            {
+                isAllStar = false;
+                break;
+            }
+
+        }
+        if (isAllStar)
+            showObject(ex3);
+
     }
 
 }
 
-void start() 
+void start()
 {
-    if (!isStarted) 
+    if (!isStarted)
     {
         x_speed = 0;
         y_speed = 0;
@@ -84,24 +126,23 @@ void start()
 }
 
 
-
-void map_load(int stage) 
+void map_load(int stage)
 {
     player_state = STATE::YELLOW;
     setObjectImage(player, "Images/yellow.png");
     x_speed = 0;
     y_speed = 0;
-    
-    if (stage == 1) 
+
+    if (stage == 1)
     {
-        for (int x = 0; x < 32; x++) 
+        for (int x = 0; x < 32; x++)
         {
-            for (int y = 0; y < 18; y++) 
+            for (int y = 0; y < 18; y++)
             {
                 arr[x][y] = map1[x][y];
             }
         }
-        
+
         star_count = stars1;
         for (int i = 0; i < 6; i++) {
             if (i < star_count) {
@@ -115,15 +156,15 @@ void map_load(int stage)
 
         x = map1_xs;
         y = map1_ys;
-    
+
         ex = map1_xe;
         ey = map1_ye;
     }
-    else if (stage == 2) 
+    else if (stage == 2)
     {
-        for (int x = 0; x < 32; x++) 
+        for (int x = 0; x < 32; x++)
         {
-            for (int y = 0; y < 18; y++) 
+            for (int y = 0; y < 18; y++)
             {
                 arr[x][y] = map2[x][y];
             }
@@ -136,9 +177,9 @@ void map_load(int stage)
                 showObject(stars[i]);
                 locateObject(stars[i], scene3, starsPoint2[i][0], starsPoint2[i][1]);
             }
-            else 
+            else
             {
-               hideObject(stars[i]);
+                hideObject(stars[i]);
             }
         }
         x = map2_xs;
@@ -146,13 +187,13 @@ void map_load(int stage)
 
         ex = map2_xe;
         ey = map2_ye;
-        
+
     }
-    else if (stage == 3) 
+    else if (stage == 3)
     {
-        for (int x = 0; x < 32; x++) 
+        for (int x = 0; x < 32; x++)
         {
-            for (int y = 0; y < 18; y++) 
+            for (int y = 0; y < 18; y++)
             {
                 arr[x][y] = map3[x][y];
             }
@@ -177,36 +218,36 @@ void map_load(int stage)
     for (int i = 0; i < star_count; i++) eatStar[i] = false;
     for (int i = star_count; i < 6; i++) eatStar[i] = true;
 
-    for (int x = 0; x < 32; x++) 
+    for (int x = 0; x < 32; x++)
     {
-        for (int y = 0; y < 18; y++) 
+        for (int y = 0; y < 18; y++)
         {
             if (arr[x][y] == 0) hideObject(blocks[x][y]);
-            else if (arr[x][y] == 1) 
+            else if (arr[x][y] == 1)
             {
                 showObject(blocks[x][y]);
                 setObjectImage(blocks[x][y], "Images/block.png");
                 locateObject(blocks[x][y], scene3, x * 40, (17 - y) * 40);
             }
-            else if (arr[x][y] == 2) 
+            else if (arr[x][y] == 2)
             {
                 showObject(blocks[x][y]);
                 setObjectImage(blocks[x][y], "Images/up_b.png");
                 locateObject(blocks[x][y], scene3, x * 40, (17 - y) * 40);
             }
-            else if (arr[x][y] == 3) 
+            else if (arr[x][y] == 3)
             {
                 showObject(blocks[x][y]);
                 setObjectImage(blocks[x][y], "Images/down_b.png");
                 locateObject(blocks[x][y], scene3, x * 40, (17 - y) * 40 - 12);
             }
-            else if (arr[x][y] == 4) 
+            else if (arr[x][y] == 4)
             {
                 showObject(blocks[x][y]);
                 setObjectImage(blocks[x][y], "Images/left_b.png");
                 locateObject(blocks[x][y], scene3, x * 40 - 12, (17 - y) * 40);
             }
-            else if (arr[x][y] == 5) 
+            else if (arr[x][y] == 5)
             {
                 showObject(blocks[x][y]);
                 setObjectImage(blocks[x][y], "Images/right_b.png");
@@ -218,7 +259,7 @@ void map_load(int stage)
     locateObject(clear, scene3, ex, ey);
 }
 
-void tick() 
+void tick()
 {
     locateObject(player, scene3, x - 10, y - 10);
 
@@ -231,13 +272,13 @@ void tick()
     }
 
     if (ex <= x && x <= ex + 40 && ey <= y && y <= ey + 40) end();
-    
+
     if (player_state == STATE::YELLOW || player_state == STATE::BLUE) {
         x += x_speed;
         y += y_speed;
-        
+
         if (y_speed > -10) y_speed -= G;
-        
+
         if (y > 10 && arr[x / 40][(720 - y + 10) / 40] != 0) {
             y_speed = player_state == STATE::YELLOW ? 9 : 13;
         }
@@ -253,7 +294,7 @@ void tick()
     }
     else {
         x += player_state == STATE::RED ? 10 : -10;
-        
+
         if (y > 10 && arr[x / 40][(720 - y + 10) / 40] != 0) {
             y_speed = 9;
             player_state = STATE::YELLOW;
@@ -273,7 +314,7 @@ void tick()
             setObjectImage(player, "Images/yellow.png");
         }
     }
-    
+
     if (y <= 0) map_load(stage);
     else if (y > 22 && arr[x / 40][(720 - y + 22) / 40] == 2) {
         map_load(stage);
@@ -287,15 +328,15 @@ void tick()
     else if (arr[(x - 22) / 40][(720 - y) / 40] == 5) {
         map_load(stage);
     }
-    
-    if (isStarted) 
+
+    if (isStarted)
     {
         setTimer(timer, 1.f / TPS);
         startTimer(timer);
     }
 }
 
-void mouseCallback(ObjectID object, int x, int y, MouseAction action) 
+void mouseCallback(ObjectID object, int x, int y, MouseAction action)
 {
 
     if (object == play)
@@ -346,14 +387,6 @@ void mouseCallback(ObjectID object, int x, int y, MouseAction action)
         stopSound(sound1);
         showObject(soundx);
     }
-    else if (object == step2x)
-    {
-        showMessage("1");
-    }
-    else if (object == step3x)
-    {
-        showMessage("2");
-    }
     else if (object == step1)
     {
         stage = 1;
@@ -364,25 +397,39 @@ void mouseCallback(ObjectID object, int x, int y, MouseAction action)
     }
     else if (object == step2)
     {
-        stage = 2;
-        enterScene(scene3);
-        map_load(stage);
-        start();
+        if (clear1)
+        {
+            stage = 2;
+            enterScene(scene3);
+            map_load(stage);
+            start();
+        }
+        else
+        {
+            showMessage("You should clear step1");
+        }
+
     }
     else if (object == step3)
     {
-        stage = 3;
-        enterScene(scene3);
-        map_load(stage);
-        start();
+        if (clear2)
+        {
+            stage = 3;
+            enterScene(scene3);
+            map_load(stage);
+            start();
+        }
+        else
+        {
+            showMessage("You should clear step2");
+        }
     }
-
 
 }
 
-void keyboardCallback(int keycode, KeyState state) 
+void keyboardCallback(int keycode, KeyState state)
 {
-    
+
     if (keycode == 28 && state == KeyState::KEYBOARD_PRESSED)
     {
         setObjectImage(player, "Images/yellow.png");
@@ -417,12 +464,11 @@ void keyboardCallback(int keycode, KeyState state)
     }
 }
 
-void timerCallback(TimerID timer) 
+void timerCallback(TimerID timer)
 
 {
     tick();
 }
-
 
 
 ObjectID createObject(const char* image, const SceneID scene, int  x, int  y, bool isshown)
@@ -434,7 +480,7 @@ ObjectID createObject(const char* image, const SceneID scene, int  x, int  y, bo
     return ob;
 }
 
-int main() 
+int main()
 {
     setMouseCallback(mouseCallback);
     setKeyboardCallback(keyboardCallback);
@@ -442,12 +488,9 @@ int main()
 
     timer = createTimer(1.f / TPS);
 
-
     scene1 = createScene("main", "Images/home_background.png");
 
-
     scene2 = createScene("main", "Images/background.png");
-
 
     scene3 = createScene("game", "Images/background.png");
     scene4 = createScene("game", "Images/background.png");
@@ -462,28 +505,28 @@ int main()
     how_to_play = createObject("Images/how_to_play.png", scene1, 1100, 70, true);
     next = createObject("Images/next.png", scene3, 600, 300, false);
     sound = createObject("Images/sound.png", scene1, 70, 70, true);
-    soundx = createObject("Images/soundx.png", scene1, 70, 70, false);
+
     step1 = createObject("Images/step1.png", scene2, 50, 250, true);
-    step2 = createObject("Images/step2.png", scene2, 450, 250, true);
-    step3 = createObject("Images/step3.png", scene2, 850, 250, true);
-    step2x = createObject("Images/step2x.png", scene2, 450, 250, false);
-    step3x = createObject("Images/step3x.png", scene2, 850, 250, false);
-    blank= createObject("Images/blank.png", scene3, 600, 300, false);
+    step2 = createObject("Images/step2x.png", scene2, 450, 250, true);
+    step3 = createObject("Images/step3x.png", scene2, 850, 250, true);
+
+    blank = createObject("Images/blank.png", scene3, 600, 300, false);
     player = createObject("Images/yellow.png", scene3, 500, 500, true);
-    ex1 = createObject("Images/excellent.png", scene2,50,100, false);
-    ex2 = createObject("Images/excellent.png", scene2,450,100, false);
-    ex3 = createObject("Images/excellent.png", scene2, 850,100, false);
+
+    ex1 = createObject("Images/excellent.png", scene2, 50, 100, false);
+    ex2 = createObject("Images/excellent.png", scene2, 450, 100, false);
+    ex3 = createObject("Images/excellent.png", scene2, 850, 100, false);
     clear = createObject("Images/clear.png");
-    
-    
-    for (int i = 0; i< 6; i++)
+
+
+    for (int i = 0; i < 6; i++)
     {
-         stars[i] = createObject("Images/star.png");
+        stars[i] = createObject("Images/star.png");
     }
 
-    for (int x = 0; x < 32; x++) 
+    for (int x = 0; x < 32; x++)
     {
-        for (int y = 0; y < 18; y++) 
+        for (int y = 0; y < 18; y++)
         {
             blocks[x][y] = createObject("Images/blocks.png");
         }
