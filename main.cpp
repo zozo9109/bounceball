@@ -8,7 +8,7 @@ const int TPS = 50;
 enum class STATE { YELLOW, BLUE, RED, PURPLE };
 
 SceneID scene1, scene2, scene3, scene4;
-ObjectID play, exit, back1, back2, back3, blank, home, how_to_play, lock, next, sound, soundx, step1, step2, step3, ex1, ex2, ex3, clear;
+ObjectID play, exit, back1, back2, back3, blank, home, how_to_play, lock, next, sound, soundx, step1, step2, step3, ex1, ex2, ex3, clear, game_ex, tong;
 ObjectID player;
 ObjectID stars[6];
 ObjectID blocks[32][18];
@@ -32,8 +32,12 @@ bool isPlay = false;
 bool isStarted = false;
 bool issound = true;
 bool isclear;
+bool excellent[3] = { false,false,false };
+bool isAllExcellent = true;
 bool clear1 = false;
 bool clear2 = false;
+bool clear3 = false;
+
 
 STATE player_state = STATE::YELLOW;
 
@@ -67,7 +71,26 @@ void end()
 
         }
         if (isAllStar)
+        {
             showObject(ex1);
+            excellent[0] = true;
+        }
+        for (int i = 0; i < 3; i++)
+        {
+
+            if (excellent[i] == false)
+            {
+                isAllExcellent = false;
+                break;
+            }
+
+        }
+        if (isAllExcellent)
+        {
+
+        }
+
+
     }
     else if (stage == 2)
     {
@@ -87,7 +110,25 @@ void end()
             }
         }
         if (isAllStar)
+        {
             showObject(ex2);
+            excellent[1] = true;
+        }
+        for (int i = 0; i < 3; i++)
+        {
+
+            if (excellent[i] == false)
+            {
+                isAllExcellent = false;
+                break;
+            }
+
+        }
+        if (isAllExcellent)
+        {
+
+        }
+
     }
     else if (stage == 3)
     {
@@ -106,7 +147,24 @@ void end()
 
         }
         if (isAllStar)
+        {
             showObject(ex3);
+            excellent[2] = true;
+        }
+        for (int i = 0; i < 3; i++)
+        {
+
+            if (excellent[i] == false)
+            {
+                isAllExcellent = false;
+                break;
+            }
+
+        }
+        if (isAllExcellent)
+        {
+
+        }
 
     }
 
@@ -489,20 +547,23 @@ int main()
 
     timer = createTimer(1.f / TPS);
 
-    scene1 = createScene("main", "Images/home_background.png");
-    scene2 = createScene("main", "Images/background.png");
-    scene3 = createScene("game", "Images/background.png");
-    scene4 = createScene("game", "Images/background.png");
-    
+    scene1 = createScene("", "Images/home_background.png");
+    scene2 = createScene("", "Images/background.png");
+    scene3 = createScene("", "Images/background.png");
+    scene4 = createScene("", "Images/background.png");
+
     sound1 = createSound("Images/sound.mp3");
+
+    game_ex = createObject("Images/game_ex.png", scene4, 30, 40, true);
+    tong = createObject("Images/tong.png", scene1, 480, 500, true);
 
     play = createObject("Images/play.png", scene1, 600, 300, true);
     exit = createObject("Images/exit.png", scene1, 850, 300, true);
-    
+
     back1 = createObject("Images/back.png", scene2, 30, 650, true);
     back2 = createObject("Images/back.png", scene4, 30, 650, true);
     back3 = createObject("Images/back.png", scene3, 30, 650, true);
-    
+
     home = createObject("Images/home.png", scene3, 600, 300, false);
     how_to_play = createObject("Images/how_to_play.png", scene1, 1100, 70, true);
     next = createObject("Images/next.png", scene3, 600, 300, false);
